@@ -1,17 +1,42 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstdlib>
 #include <cmath>
 #include <limits>
+#include <algorithm>
+#include <string>
 #include "PP6Math.hpp"
-
-using namespace std;
+#include "FileReader.hpp"
 
 int main() {
     double res, res2;
     char op('\0');
+    char day_op('\0');
     
     while(true){
+       // Ask for the day
+       std::cout << "Enter the operation you would like to perform:" << std::endl;
+       std::cout << "1) 1st day" << std::endl;
+       std::cout << "2) 2nd day" << std::endl;
+       //std::cout << "3) 3rd day" << std::endl;
+       //std::cout << "4) 4th day" << std::endl;
+       //std::cout << "5) 5th day" << std::endl;
+       //std::cout << "6) 6th day" << std::endl;
+       std::cout << "q) Quit" << std::endl;
+       std::cout << ">> ";
+       std::cin >> day_op;
+    if(!std::cin){
+       std::cerr << "[error] Error in input" << std::endl;
+       // clear the buffer
+       std::cin.clear();
+       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+       continue;
+    }
+    if (day_op == 'q'){
+       break;
+    }
+    else if(day_op == '1'){  //day 1
        // Ask the user what they want to do
        std::cout << "Enter the operation you would like to perform:" << std::endl;
        std::cout << "1) Intercept" << std::endl;
@@ -31,9 +56,6 @@ int main() {
        continue;
     }
 
-    if (op == 'q'){
-       break;
-    }
     else if(op == '1'){
        double m, q;
        //calculate the intercept of a line on the x-axis
@@ -126,9 +148,116 @@ int main() {
          res = inv_mass(E1, px1, py1, pz1, E2, px2, py2, pz2);
          std::cout << "The invariant mass is: m = " << res << std::endl;
     } 
+    }
+    else if(day_op == '2'){  //day 2
+       // Ask the user what they want to do
+       std::cout << "Enter the operation you would like to perform:" << std::endl;
+       std::cout << "1) Random energies and momenta" << std::endl;
+       std::cout << "2) Read data file" << std::endl;
+       std::cout << ">> ";
+       std::cin >> op;
+    // check for bad input
+    if(!std::cin){
+       std::cerr << "[error] Error in input" << std::endl;
+       // clear the buffer
+       std::cin.clear();
+       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+       continue;
+    }
+    else if (op == '1'){
+         int size;
+         double p[100], px[100], py[100], pz[100]; 
+         double sum, m, E[100];
+         double mean_energy, std_energy;        
+         double max_E, max_p;
+         //generate 100 random energies and momenta
+         size = 100;
+         m = rand() % 100;
+         for(int i = 0; i < size; i++){
+            px[i] = rand() % 30;
+            py[i] = rand() % 30;
+            pz[i] = rand() % 30;  
+            p[i] = length(px[i], py[i], pz[i]);
+            E[i] = sqrt(pow(m,2) + pow(p[i],2));
+         }
+
+         sum = 0.0;
+         for(int i = 0; i < size; i++){
+            sum += E[i];
+         }
+         mean_energy = sum/size;
+         std::cout << "The mean energy is: <E> = " << mean_energy << std::endl;
+
+         sum = 0.0;
+         for(int i = 0; i < size; i++){
+             sum += pow((E[i] - mean_energy),2);
+         }
+         sum = sum/size;
+         std_energy = sqrt(sum);
+         std::cout << "The energy standard deviation is: sigma = " << std_energy << std::endl;
+
+         max_E = 0.0;
+         max_p = 0.0;
+         for(int i = 0; i < size; i++){
+            while(E[i] > max_E){
+                 max_E = E[i];
+            }
+            while(p[i] > max_p){
+                  max_p = p[i];
+            }
+         }
+         std::cout << "The maximum energy is: max_E = " << max_E << std::endl;
+         std::cout << "The maximum momentum is: max_p = " << max_p << std::endl;
+    }
+    else if (op == '2'){
+  //       char path;
+  //       std::cout << "Give the file path" << std::endl;
+  //      std::cin >> path;
+  //       path = "/home/anna/Scrivania/Cpp/observedparticles.dat";
+         int size;
+         int size_p = 0;
+         int size_m = 0;
+         size = determine_size_array(size_p, size_m);
+         std::cout << size << std::endl;
+         const int length1 = size_p;
+         const int length2 = size_m;
+         std::cout << "number of mu+ events: " << length1 << std::endl;
+         std::cout << "number of mu- events: " << length2 << std::endl;
+         double *px_p, *py_p, *pz_p;
+         double *px_m, *py_m, *pz_m;
+         int *event_p, *event_m;
+         px_p = new double[length1];
+         py_p = new double[length1];
+         pz_p = new double[length1];
+         event_p = new int[length1]; 
+         px_m = new double[length1];
+         py_m = new double[length1];
+         pz_m = new double[length1];
+         event_m = new int[length1]; 
+
+         read_file(event_p, px_p, py_p, pz_p, event_m, px_m, py_m, pz_m);
+         
+         double mu_mass = 1.;
+         double p_p, p_m, E_p, E_m;
+         for(int i = 0; i <= 3; i++){
+            for(int j = 0; j <= 3; j++){
+                std::cout << "mu+ event: " << event_p[i] << "; mu- event: " << event_m[j] << std::endl;
+                p_p = length(px_p[i], py_p[i], pz_p[i]);
+                p_m = length(px_m[j], py_m[j], pz_m[j]);
+                E_p = sqrt(pow(mu_mass,2) + pow(p_p,2));
+                E_m = sqrt(pow(mu_mass,2) + pow(p_m,2));
+                res = inv_mass(E_p, px_p[i], py_p[i], pz_p[i], E_m, px_m[j], py_m[j], pz_m[j]);
+                std::cout << event_p[i] << std::endl;
+                std::cout << "The invariant mass is: m = " << res << std::endl;                
+            }
+         }
+
+    }
+
     else{
         std::cerr << "[error] Operation '" << op << "' not recognised." << std::endl;
         continue;
+    }
     }
     }
     return 0;

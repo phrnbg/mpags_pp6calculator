@@ -11,5 +11,7 @@ add_library(pp6lib STATIC
   PP6Day3.cpp
   FourVector.hpp
   FourVector.cpp
+  Particle.hpp
+  Particle.cpp
   )
 add_library(FileReader FileReader.hpp FileReader.cpp)

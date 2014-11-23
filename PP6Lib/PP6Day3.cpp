@@ -1,5 +1,6 @@
 #include "PP6Day3.hpp"
 #include "FourVector.hpp"
+#include "Particle.hpp"
 
 #include <iostream>
 #include <limits>
@@ -81,6 +82,78 @@ void do_day3(){
           int *event_p(new int[size_p]), *event_m(new int[size_m]);
 
           read_file(path, run, particle, event_p, px_p, py_p, pz_p, event_m, px_m, py_m, pz_m); 
+
+          double mu_mass = 1.;
+          double p_p, p_m, E_p, E_m, E, px, py, pz;
+          double muonP, antimuonP;
+          double *invariant_mass(new double[size_p*size_m]);
+          double *muonPx(new double[size_p*size_m]), *muonPy(new double[size_p*size_m]), *muonPz(new double[size_p*size_m]);
+          double *muonEnergy(new double[size_p*size_m]);
+          double *antimuonPx(new double[size_p*size_m]), *antimuonPy(new double[size_p*size_m]), *antimuonPz(new double[size_p*size_m]);
+          double *antimuonEnergy(new double[size_p*size_m]);
+          int *muonEventNumber(new int[size_p*size_m]), *antimuonEventNumber(new int[size_p*size_m]);
+          int *index(new int[size_p*size_m]);
+          int counter = 0;
+          for(int i = 0; i < size_p; i++){
+             for(int j = 0; j < size_m; j++){
+                 p_p = length(px_p[i], py_p[i], pz_p[i]);
+                 p_m = length(px_m[j], py_m[j], pz_m[j]);
+                 E_p = sqrt(pow(mu_mass,2) + pow(p_p,2));
+                 E_m = sqrt(pow(mu_mass,2) + pow(p_m,2));
+                 E = E_p + E_m;
+                 px = px_p[i]+px_m[j];
+                 py = py_p[i]+py_m[j];
+                 pz = pz_p[i]+pz_m[j];
+                 Particle q(E, px, py, pz);
+                 invariant_mass[counter] = q.inv_mass();
+                 std::cout << "The invariant mass is: m = " << invariant_mass[counter] << std::endl;
+                 muonPx[counter] = px_p[i];
+                 muonPy[counter] = py_p[i];
+                 muonPz[counter] = pz_p[i];      
+                 muonP = length(px_p[i], py_p[i], pz_p[i]);
+                 muonEnergy[counter] = sqrt(pow(mu_mass,2) + pow(muonP,2));     
+                 muonEventNumber[counter] = event_p[i];
+                 antimuonPx[counter] = px_m[j];
+                 antimuonPy[counter] = py_m[j];
+                 antimuonPz[counter] = pz_m[j];
+                 antimuonP = length(px_m[j], py_m[j], pz_m[j]); 
+                 antimuonEnergy[counter] = sqrt(pow(mu_mass,2) + pow(antimuonP,2)); 
+                 antimuonEventNumber[counter] = event_m[j];
+                 index[counter] = counter;
+                 counter++;
+             }
+          }
+
+        associative_sort(invariant_mass, index, counter);
+        for(int i = 0; i < 10; i++){    
+            std::cout << "{InvariantMass : " << invariant_mass[index[i]]
+                      << ",\n\t"
+                      << "{Muon : "
+                      << "Event = " << muonEventNumber[index[i]] << ", "
+                      << "(E, P) = ("
+                      << muonEnergy[index[i]] << ", "
+                      << muonPx[index[i]] << ", "
+                      << muonPy[index[i]] << ", "
+                      << muonPz[index[i]] << ")}\n\t"
+                      << "{AntiMuon : "
+                      << "Event = " << antimuonEventNumber[index[i]] << ", "
+                      << "(E, P) = ("
+                      << antimuonEnergy[index[i]] << ", "
+                      << antimuonPx[index[i]] << ", "
+                      << antimuonPy[index[i]] << ", "
+                      << antimuonPz[index[i]] << ")}\n"
+                      << "}"
+                      << std::endl;
+        }
+
+          delete [] px_p;
+          delete [] py_p;
+          delete [] pz_p;
+          delete [] event_p;
+          delete [] px_m;
+          delete [] py_m;
+          delete [] pz_m;
+          delete [] event_m;
      
      }else{
        std::cerr << "[error] Operation '" << op << "' not recognised." << std::endl;

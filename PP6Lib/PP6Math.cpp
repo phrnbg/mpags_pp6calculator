@@ -1,10 +1,11 @@
-#include "PP6Math.hpp"
-#include "FileReader.hpp"
-
 #include <string>
 #include <iostream>
 #include <limits>
 #include <cmath>
+
+#include "PP6Math.hpp"
+#include "FileReader.hpp"
+#include "FourVector.hpp"
 
 double add(double a, double b){
        return a+b;
@@ -67,49 +68,48 @@ double getNumber(){
        return res;
 }
 
-int determine_size_array(int* a, int* b){
-    int size_p = 0;
-    int size_m = 0;
-    FileReader f("/home/anna/Scrivania/Cpp/observedparticles.dat");
-    // Only process if the file is open/valid
-    if (f.isValid()) {
-    // Loop until out of lines
-       while (f.nextLine()) {
-       // Fields in each line line are treated as whitespace separated
-       // and counted from 1. Fields can be retrieved as one of four main
-       // types
+bool determine_size_array(const std::string& path, const std::string& run, const std::string& particle, int& a, int& b){
+     int size_p = 0;
+     int size_m = 0;
+     FileReader f(path);
+     // Only process if the file is open/valid
+     if (f.isValid()) {
+     // Loop until out of lines
+        while (f.nextLine()) {
+        // Fields in each line line are treated as whitespace separated
+        // and counted from 1. Fields can be retrieved as one of four main
+        // types
+ 
+        // retrieve field 2 as a float
+        std::string b = f.getFieldAsString(2); 
 
-       // retrieve field 2 as a float
-       std::string b = f.getFieldAsString(2);
+        // retrieve field 6 as a string
+        std::string g = f.getFieldAsString(6);
 
-       // retrieve field 6 as a string
-       std::string g = f.getFieldAsString(6);
-
-       if(g == "run4.dat"){
-          if(b == "mu+" ){
-             size_p++;// = size + 1; 
+        if(g == run){
+           if(b == particle + "+"){
+              size_p++;
+            }
+           if(b == particle + "-"){
+            size_m++;
            }
-          if(b == "mu-" ){
-           size_m++;// = size + 1; 
-          }
+        }
+        // Check that input is o.k.
+        if (f.inputFailed()) break;
        }
-       // Check that input is o.k.
-       if (f.inputFailed()) break;
-       }
-    }
-    (*a) = size_p;
-    (*b) = size_m;
-    return (*a);
-    return (*b);
-//    return size_p, size_m;
+     } else {
+       return false;
+     }
+   
+     a = size_p;
+     b = size_m;
+     return true;
 }
 
-double read_file(int* event_p, double* px_p, double* py_p, double* pz_p, int* event_m, double* px_m, double* py_m, double* pz_m){
-         //int event_p, event_m;
-         //double, px_p, py_p, pz_p, px_m, py_m, pz_m;
+bool read_file(const std::string& path, const std::string& run, const std::string& particle, int* event_p, double* px_p, double* py_p, double* pz_p, int* event_m, double* px_m, double* py_m, double* pz_m){
          int ip = 0;
          int im = 0;
-         FileReader file("/home/anna/Scrivania/Cpp/observedparticles.dat");
+         FileReader file(path);
          if (file.isValid()) {
          // Loop until out of lines
             while (file.nextLine()) {
@@ -123,36 +123,109 @@ double read_file(int* event_p, double* px_p, double* py_p, double* pz_p, int* ev
             // retrieve field 6 as a string
             std::string g = file.getFieldAsString(6);
 
-            if(g == "run4.dat"){
-              if(b == "mu+" ){
+            if(g == run){
+              if(b == particle + "+"){
                  px_p[ip] = file.getFieldAsDouble(3);
                  py_p[ip] = file.getFieldAsDouble(4);
                  pz_p[ip] = file.getFieldAsDouble(5);
                  event_p[ip] = file.getFieldAsInt(1);
                  std::cout << event_p[im] << "  " << g << "  " << b << "   px = " << px_p[ip] << " py= " << py_p[ip] << " pz = " << pz_p[ip] << std::endl;
                  ip++;
-//                 std::cout << ip << std::endl;
               }
-              if(b == "mu-" ){
+              if(b == particle + "-"){
                  px_m[im] = file.getFieldAsDouble(3);
                  py_m[im] = file.getFieldAsDouble(4);
                  pz_m[im] = file.getFieldAsDouble(5);
                  event_m[im] = file.getFieldAsInt(1);
                  std::cout << event_m[im] << "  " << g << "  " << b << "   px = " << px_m[im] << " py= " << py_m[im] << " pz = " << pz_m[im] << std::endl;
                  im++;
-//                 std::cout << im << std::endl; 
               }
             }
             // Check that input is o.k.
             if (file.inputFailed()) break;
             }  
+         } else {
+           return false;
          }
-         return (*event_p);
-         return (*px_p);
-         return (*py_p);
-         return (*pz_p);
-         return (*event_m);
-         return (*px_m);
-         return (*py_m);
-         return (*pz_m);
+
+         return true;
+}
+
+
+int swap(double& a, double& b)
+{
+  double tmp(a);
+  a = b;
+  b = tmp;
+  return 0;
+}
+
+int swap(int& a, int& b)
+{
+  int tmp(a);
+  a = b;
+  b = tmp;
+  return 0;
+}
+
+int basic_sort(double *arr, int size)
+{
+  // Perform a bubble sort on the given array
+  bool done(true);
+
+  while (true)
+  {
+    done = true;
+
+    for (int i = 0; i < size-1; ++i)
+    {
+      if (arr[i] < arr[i+1])
+      {
+        swap(arr[i], arr[i+1]);
+        done = false;
+      }
+    }
+
+    if (done)
+    {
+      break;
+    }
+  }
+  return 0;
+}
+
+int associative_sort(double *arr, int *index, int size)
+{
+  // create a temporary array to sort on so we only change the index array
+  double *arr_t = new double[size];
+  for (int i(0); i < size; i++)
+  {
+    arr_t[i] = arr[i];
+  }
+
+  // Perform a bubble sort on the given array
+  bool done(true);
+
+  while (true)
+  {
+    done = true;
+
+    for (int i(0); i < size-1; ++i)
+    {
+      if (arr_t[i] < arr_t[i+1])
+      {
+        swap(index[i], index[i+1]);
+        swap(arr_t[i], arr_t[i+1]);
+        done = false;
+      }
+    }
+    if (done)
+    {
+      break;
+    }
+  }
+
+  // delete temporary array, then return success
+  delete [] arr_t;
+  return 0;
 }

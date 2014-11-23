@@ -33,27 +33,19 @@ double FourVector::boost_z(double v){
 }
 
 double FourVector::getT() const {  
-    std::string tmp;
-    double temp = ::atof(tmp.c_str());
-    return temp;
+    return t;
 }
 
 double FourVector::getX() const {  
-    std::string tmp;
-    double temp = ::atof(tmp.c_str());
-    return temp;
+    return x;
 }
 
 double FourVector::getY() const {  
-    std::string tmp;
-    double temp = ::atof(tmp.c_str());
-    return temp;
+    return y;
 }
 
 double FourVector::getZ() const {  
-    std::string tmp;
-    double temp = ::atof(tmp.c_str());
-    return temp;
+    return z;
 }
 
 /*void FourVector::setT(double a){

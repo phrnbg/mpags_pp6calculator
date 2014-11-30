@@ -5,7 +5,7 @@
 
 #include "PP6Math.hpp"
 #include "FileReader.hpp"
-#include "FourVector.hpp"
+#include "PP6FourVector.hpp"
 
 double add(double a, double b){
        return a+b;

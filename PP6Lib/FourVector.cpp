@@ -28,8 +28,7 @@ double FourVector::boost_z(double v){
        gamma = 1/sqrt(1-pow(beta,2));
        t = gamma*(t - (v*x)/pow(c,2));
        z = gamma*(z - v*t);
-       return t;
-       return z;
+       return 0;
 }
 
 double FourVector::getT() const {  

@@ -6,6 +6,7 @@
 #include <limits>
 #include <string>
 #include <fstream>
+#include <cmath>
 
 #include "PP6Math.hpp"
 

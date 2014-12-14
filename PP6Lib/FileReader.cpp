@@ -1,4 +1,3 @@
-#include <sstream>
 #include "FileReader.hpp"
 
 FileReader::FileReader(const char* filename)
@@ -42,9 +41,9 @@ int FileReader::getFieldAsInt(const int n) {
   if (ist.fail()) {
     failed = true;
     return 0;
-  }
-  else
+  } else {
     return rval;
+  }
 }
 
 float FileReader::getFieldAsFloat(const int n) {
@@ -56,9 +55,9 @@ float FileReader::getFieldAsFloat(const int n) {
   if (ist.fail()) {
     failed = true;
     return 0.0;
-  }
-  else
+  } else {
     return rval;
+  }
 }
 
 double FileReader::getFieldAsDouble(const int n) {
@@ -70,9 +69,9 @@ double FileReader::getFieldAsDouble(const int n) {
   if (ist.fail()) {
     failed = true;
     return 0.0;
-  }
-  else
+  } else {
     return rval;
+  }
 }
 
 std::string FileReader::getFieldAsString(const int n) {
@@ -84,9 +83,9 @@ std::string FileReader::getFieldAsString(const int n) {
   if (ist.fail()) {
     failed = true;
     return std::string();
-  }
-  else
+  } else {
     return rval;
+  }
 }
 
 bool FileReader::inputFailed() const {

@@ -11,6 +11,8 @@ add_library(pp6lib STATIC
   PP6Day3.cpp
   PP6Day4.hpp
   PP6Day4.cpp
+  PP6Day5.hpp
+  PP6Day5.cpp
   PP6ThreeVector.hpp
   PP6ThreeVector.cpp
   PP6FourVector.hpp
@@ -19,10 +21,14 @@ add_library(pp6lib STATIC
   PP6Particle.cpp
   PP6ParticleInfo.hpp
   PP6ParticleInfo.cpp
-  FourVector.hpp
-  FourVector.cpp
-  Particle.hpp
-  Particle.cpp
+  PP6Day4MuonAnalysis.hpp
+  PP6Day4MuonAnalysis.cpp
+  PP6Day5MuonAnalysis.hpp
+  PP6Day5MuonAnalysis.cpp
+  FourVectorMine.hpp
+  FourVectorMine.cpp
+  ParticleMine.hpp
+  ParticleMine.cpp
   FileReaderTemplate.hpp
   FileReaderTemplate.cpp
   )

@@ -1,6 +1,6 @@
 #include "PP6Day3.hpp"
-#include "FourVector.hpp"
-#include "Particle.hpp"
+#include "FourVectorMine.hpp"
+#include "ParticleMine.hpp"
 
 #include <iostream>
 #include <limits>
@@ -14,7 +14,9 @@ void do_day3(){
      char op('\0');
      while(true){
         // Ask the user what they want to do
-        std::cout << "Enter the operation you would like to perform:" << std::endl;
+        std::cout << "PP6Calculator - Day 4 Menu" << std::endl;
+        std::cout << "==========================" << std::endl;
+        std::cout << "Enter the operation you would like to perform:" << std::endl;;
         std::cout << "1) Boost a 4-Vector Along z" << std::endl;
         std::cout << "2) Calculate 4-Vector Length" << std::endl;
         std::cout << "3) Read data file" << std::endl;
@@ -44,7 +46,7 @@ void do_day3(){
           v = getNumber();
           std::cout << "4-Vector: {" << time << "," << sp_x << "," << sp_y << "," << sp_z << "}" << std::endl;
           std::cout << "Boost velocity: v = " << v << " m/s" << std::endl;
-          FourVector q(time, sp_x, sp_y, sp_z);
+          FourVectorMine q(time, sp_x, sp_y, sp_z);
           q.boost_z(v);
           std::cout << "Boosted vector: {" << q.getT() << "," << q.getX() << "," << q.getY() << "," << q.getZ() << "}" << std::endl;
      }
@@ -57,7 +59,7 @@ void do_day3(){
           sp_y = getNumber();
           sp_z = getNumber();
           std::cout << "4-Vector: {" << time << "," << sp_x << "," << sp_y << "," << sp_z << "}" << std::endl;
-          FourVector q(time, sp_x, sp_y, sp_z);
+          FourVectorMine q(time, sp_x, sp_y, sp_z);
           q.interval();
           std::cout << "Interval s = " << q.interval() << std::endl;          
      }
@@ -105,7 +107,7 @@ void do_day3(){
                  px = px_p[i]+px_m[j];
                  py = py_p[i]+py_m[j];
                  pz = pz_p[i]+pz_m[j];
-                 Particle q(E, px, py, pz);
+                 ParticleMine q(E, px, py, pz);
                  invariant_mass[counter] = q.inv_mass();
                  std::cout << "The invariant mass is: m = " << invariant_mass[counter] << std::endl;
                  muonPx[counter] = px_p[i];

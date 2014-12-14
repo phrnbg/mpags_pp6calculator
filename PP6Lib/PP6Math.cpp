@@ -54,20 +54,6 @@ double inv_mass(double e1, double px1, double py1, double pz1, double e2, double
        return length(tot_e, tot_px, tot_py, tot_pz);
 }
 
-double getNumber(){
-       double res(0);
-       std::cin >> res;
-       while (!std::cin){
-             std::cout << "Error in input. Please re-enter." << std::endl;
-             // clear the buffer
-             std::cin.clear();
-             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-             // retry
-             std::cin >> res;
-       }
-       return res;
-}
-
 bool determine_size_array(const std::string& path, const std::string& run, const std::string& particle, int& a, int& b){
      int size_p = 0;
      int size_m = 0;
@@ -228,4 +214,61 @@ int associative_sort(double *arr, int *index, int size)
   // delete temporary array, then return success
   delete [] arr_t;
   return 0;
+}
+
+void printArray(double *arr, int size)
+{
+  std::cout << "[array:" << arr << "]{";
+  for (int i = 0; i < size - 1; ++i)
+  {
+    std::cout << arr[i] << ", ";
+  }
+  std::cout << arr[size - 1] << "}" << std::endl;
+}
+
+double getRandom()
+{
+  return (rand() % 10000)/10000.;
+}
+
+double getNumber()
+{
+  double res(0);
+
+  std::cin >> res;
+
+  while (!std::cin)
+  {
+    std::cout << "Error in input. Please re-enter >> ";
+
+    // clear the buffer
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    // retry
+    std::cin >> res;
+  }
+
+  return res;
+}
+
+std::string getString()
+{
+  std::string res;
+
+  std::cin >> res;
+
+  while (!std::cin)
+  {
+    std::cout << "Error in input. Please re-enter >> ";
+
+    // clear the buffer
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    // retry
+    std::cin >> res;
+  }
+
+  return res;
 }

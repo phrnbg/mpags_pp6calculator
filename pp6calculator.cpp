@@ -2,6 +2,7 @@
 #include "PP6Day2.hpp"
 #include "PP6Day3.hpp"
 #include "PP6Day4.hpp"
+#include "PP6Day5.hpp"
 
 #include <iostream>
 #include <limits>
@@ -16,7 +17,7 @@ int main() {
        std::cout << "2) 2nd day" << std::endl;
        std::cout << "3) 3rd day" << std::endl;
        std::cout << "4) 4th day" << std::endl;
-       //std::cout << "5) 5th day" << std::endl;
+       std::cout << "5) 5th day" << std::endl;
        std::cout << "q) Quit" << std::endl;
        std::cout << ">> ";
        std::cin >> day_op;
@@ -44,6 +45,11 @@ int main() {
     else if(day_op == '4'){  
        do_day4();
     }
+
+    else if(day_op == '5'){  
+       do_day5();
+    }
+
     else{
         std::cerr << "[error] Operation '" << day_op << "' not recognised." << std::endl;
         continue;

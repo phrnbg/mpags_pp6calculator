@@ -1,39 +1,42 @@
-//! \file PP6ParticleInfo.hpp
-//! \brief Declaration of Particle class
+//! \file   PP6ParticleInfo.hpp
+//! \author Ben Morgan
+//! \brief  Declaration of PP6 ParticleInfo class
 #ifndef PP6PARTICLEINFO_HPP
 #define PP6PARTICLEINFO_HPP
+
+#include <map>
 #include <string>
-#include <vector>
-#include "PP6FourVector.hpp"
-#include "PP6ThreeVector.hpp"
+
+// ParticleInfo database, implemented using the singleton design pattern
 
 class ParticleInfo {
-  public:
-  // Constructors
-  ParticleInfo(); // default ctor, so we can make arrays of them (p = 0)
-  ParticleInfo(const ParticleInfo& other); // copy ctor
-  ParticleInfo(const int pdg_code, const int charge, const int name, const double massMeV); // p = 0
-  
-  // Copy assignment operator
-  ParticleInfo& operator=(const ParticleInfo& other);
+ public:
+  // The instance accessor static member function
+  static const ParticleInfo& Instance( const std::string& dbFile = std::string("pdg.dbt") );
 
-  // Accessors
-  int getPDGCode() const { return pdg_code_; }
-  int getCharge() const { return charge_; }
-  int getName() const { return name_; }
-  double getMassMeV() const { return massMeV_; }
-  
-  // Set methods for pdg code, charge, name, massMeV, massGeV
-  void setPDGCode(const int pdg_code) { pdg_code_ = pdg_code; }
-  void setCharge(const int charge) { charge_ = charge; }
-  void setName(const int name) { name_ = name; }
-  void setMassMeV(const double massMeV) { massMeV_ = massMeV; }
+  // Normal member functions
+  size_t size() const;
+  int getPDGCode(const std::string& name) const;
+  int getCharge(const int id) const;
+  std::string getName(const int id) const;
+  double getMassMeV(const int id) const;
+  double getMassGeV(const int id) const;
 
  private:
-  int pdg_code_;
-  int charge_;
-  int name_;
-  double massMeV_;
+  // The private ctor, dtor and unimplemented copy ctor and copy assignment operator
+  explicit ParticleInfo( const std::string& dbFile ); // ctor - impl. in source file
+  ParticleInfo(const ParticleInfo&); // copy ctor - do not implement
+  ~ParticleInfo() {} // dtor
+  ParticleInfo& operator=(const ParticleInfo&); // copy assignment op - do not implement
+
+  // The instance member variable
+  static ParticleInfo* theInstance;
+
+  // Normal member variables
+  std::map<std::string, int> name_to_id;
+  std::map<int, std::string> id_to_name;
+  std::map<int, int> id_to_charge;
+  std::map<int, double> id_to_mass;
 };
 
-#endif // PP6PARTICLE_HPP
+#endif // PP6PARTICLEINFO_HPP

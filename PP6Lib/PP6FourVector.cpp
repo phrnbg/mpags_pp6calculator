@@ -1,67 +1,258 @@
 // PP6FourVector.cpp : Implementation of PP6FourVector
-#include "PP6Particle.hpp"
+#include <PP6FourVector.hpp>
+
 #include <cmath>
-Particle::Particle()
-: pdg_code_(0), mass_(0.0)
+#include <sstream>
+
+//! FourVector consts for speed of light
+// Set both to 1 if you want natural units
+const double FourVector::c(1);
+const double FourVector::c2(1);
+
+FourVector::FourVector() : t_(0.0), x_(), s_(0.0)
 {}
-Particle::Particle(const Particle& other)
-: pdg_code_(other.pdg_code_), mass_(other.mass_), momentum_(other.momentum_)
+
+FourVector::FourVector(const FourVector& other)
+  : t_(other.getT()), x_(other.getThreeVector()), s_(other.interval())
 {}
-Particle::Particle(const int pdg_code, const double mass)
-: pdg_code_(pdg_code), mass_(mass), momentum_(mass, ThreeVector())
-{}
-Particle::Particle(const int pdg_code, const double mass, const ThreeVector& momentum)
-: pdg_code_(pdg_code), mass_(mass)
+
+FourVector::FourVector(const double t, const double x, const double y, const double z) : t_(t), x_(x, y, z)
 {
-this->setThreeMomentum(momentum);
+  compute_interval();
 }
-Particle::Particle(const int pdg_code, const double mass, const double px, const double py, const double pz)
-: pdg_code_(pdg_code), mass_(mass)
+
+FourVector::FourVector(const double t, const ThreeVector& x) : t_(t), x_(x)
 {
-ThreeVector mom(px, py, pz);
-this->setThreeMomentum(mom);
+  compute_interval();
 }
-Particle& Particle::operator=(const Particle& other)
+
+//----------------------------------------------------------------------
+// Member operators
+
+FourVector& FourVector::operator=(const FourVector& other)
 {
-if ( this != &other )
+  if ( this != &other ) // Ignore attempts at self-assignment
+  {
+    t_ = other.getT();
+    x_ = other.getThreeVector();
+    s_ = other.interval();
+  }
+  return *this;
+}
+
+FourVector& FourVector::operator+=(const FourVector& rhs)
 {
-this->pdg_code_ = other.pdg_code_;
-this->mass_ = other.mass_;
-this->momentum_ = other.momentum_;
+  t_ += rhs.getT();
+  x_ += rhs.getThreeVector();
+  compute_interval();
+  return *this;
 }
-return *this;
-}
-void Particle::setMass(const double mass)
+
+FourVector& FourVector::operator-=(const FourVector& rhs)
 {
-mass_ = mass;
-this->setThreeMomentum(this->getThreeMomentum());
+  t_ -= rhs.getT();
+  x_ -= rhs.getThreeVector();
+  compute_interval();
+  return *this;
 }
-void Particle::setThreeMomentum(const ThreeVector& p)
+
+FourVector& FourVector::operator*=(const double rhs)
 {
-const double mod_p = p.length();
-const double E = sqrt(mod_p*mod_p + mass_*mass_);
-momentum_.setT(E);
-momentum_.setThreeVector(p);
+  t_ *= rhs;
+  x_ *= rhs;
+  compute_interval();
+  return *this;
 }
-void Particle::setThreeMomentum(const double px, const double py, const double pz)
+
+FourVector& FourVector::operator/=(const double rhs)
 {
-ThreeVector p(px, py, pz);
-this->setThreeMomentum(p);
+  t_ /= rhs;
+  x_ /= rhs;
+  compute_interval();
+  return *this;
 }
-double calculate_invariant_mass(const Particle& first, const Particle& second)
+
+//----------------------------------------------------------------------
+// Member functions
+void FourVector::setT(double t)
 {
-const FourVector& p1 = first.getFourMomentum();
-const FourVector& p2 = second.getFourMomentum();
-FourVector p_tot = p1 + p2;
-return sqrt(p_tot.interval());
+  t_ = t;
+  compute_interval();
 }
-double calculate_invariant_mass(const std::vector<Particle>& particles)
+
+void FourVector::setThreeVector(const ThreeVector& v)
 {
-FourVector p_tot;
-std::vector<Particle>::const_iterator iter = particles.begin();
-const std::vector<Particle>::const_iterator end = particles.end();
-for ( ; iter != end; ++iter ) {
-p_tot += iter->getFourMomentum();
+  x_ = v;
+  compute_interval();
 }
-return sqrt(p_tot.interval());
+
+void FourVector::setX(const double x)
+{
+  x_.setX(x);
 }
+
+void FourVector::setY(const double y)
+{
+  x_.setY(y);
+}
+
+void FourVector::setZ(const double z)
+{
+  x_.setZ(z);
+}
+
+double FourVector::interval() const
+{
+  return s_;
+}
+
+int FourVector::boost_z(const double velocity)
+{
+  if ( velocity >= c ) // Cannot boost faster than speed of light
+  {
+    return 1; // Indicate error
+  }
+
+  // Boost along z direction
+  // x and y remain unchanged
+  
+  // Calculate Lorentz factor
+  double gamma = 1.0 / sqrt(1.0 - velocity * velocity / c2);
+  
+  // Apply boost in z direction - need temp variables due to mixing
+  double z_prime = gamma * ( x_.getZ() - velocity * t_);
+  double t_prime = gamma * ( t_ - velocity * x_.getZ() / c2);
+  x_.setZ(z_prime);
+  t_ = t_prime;
+
+  return 0; // Indicate success
+}
+
+FourVector::CausalType FourVector::getCausalType() const
+{
+  CausalType k = LIGHTLIKE;
+  if (this->interval() > 0.0) {
+    k = SPACELIKE;
+  } else if (this->interval() < 0.0) {
+    k = TIMELIKE;
+  }
+  return k;
+}
+
+std::string FourVector::asString() const
+{
+  std::ostringstream s;
+  s << *this;
+  return s.str();
+}
+
+void FourVector::compute_interval()
+{
+  // interval s^2 = (ct)^2 - (x^2 + y^2 + z^2)
+  s_ = c2*t_*t_ - x_.length()*x_.length();
+}
+
+
+//----------------------------------------------------------------------
+// Free functions - we can retain these for convenience!
+
+//! Default Create a new FourVector instance
+FourVector* createFourVector() {
+  return new FourVector;
+}
+
+//! Create a new FourVector instance with components
+FourVector* createFourVector(const double t, const double x, const double y,
+                             const double z) {
+  FourVector *p = new FourVector(t, x, y, z);
+  return p;
+}
+
+//! Destroy a FourVector instance, nulling the supplied pointer
+void destroyFourVector(FourVector *&p) {
+  if (p)
+  {
+    delete p;
+    p = 0;
+  }
+}
+
+std::string asString(const FourVector::CausalType k)
+{
+  std::ostringstream s;
+  s << "[";
+  if (k == FourVector::TIMELIKE) {
+    s << "timelike";
+  } else if (k == FourVector::SPACELIKE) {
+    s << "spacelike";
+  } else if (k == FourVector::LIGHTLIKE) {
+    s << "lightlike";
+  } else {
+    // Should really assert() or throw because we should *never* get here
+    s << "INVALID";
+  }
+
+  s << "]";
+  return s.str();
+}
+
+//----------------------------------------------------------------------
+// Free operators
+
+std::istream& operator>>(std::istream& in, FourVector& vec) // Could also be a friend function [1]
+{
+  double t(0.0);
+  ThreeVector p3;
+  std::string dummy;
+  in >> dummy >> t >> dummy >> p3 >> dummy;
+  vec.setT(t);
+  vec.setThreeVector(p3);
+  return in;
+}
+
+std::ostream& operator<<(std::ostream& out, const FourVector& vec)
+{
+  out << "( " << vec.getT() << " , " << vec.getThreeVector() << " )";
+  return out;
+}
+
+FourVector operator+(const FourVector& lhs, const FourVector& rhs)
+{
+  FourVector temp(lhs);
+  temp += rhs;
+  return temp;
+}
+
+FourVector operator-(const FourVector& lhs, const FourVector& rhs)
+{
+  FourVector temp(lhs);
+  temp -= rhs;
+  return temp;
+}
+
+FourVector operator*(const FourVector& lhs, const double rhs)
+{
+  FourVector temp(lhs);
+  temp *= rhs;
+  return temp;
+}
+
+FourVector operator*(const double lhs, const FourVector& rhs)
+{
+  FourVector temp(rhs);
+  temp *= lhs;
+  return temp;
+}
+
+FourVector operator/(const FourVector& lhs, const double rhs)
+{
+  FourVector temp(lhs);
+  temp /= rhs;
+  return temp;
+}
+
+double contraction(const FourVector& lhs, const FourVector& rhs)
+{
+  return lhs.getT() * rhs.getT() - lhs.getThreeVector().length() * rhs.getThreeVector().length();
+}
+

@@ -33,21 +33,6 @@ void FileReaderTemplate::skip_fields(std::istringstream& ist, const int n) {
   }
 }
 
-void FileReaderTemplate::getField(const int n, C& rval){
-     failed = false;
-     std::istringstream ist(line);
-     this->skip_fields(ist, n-1);
-//     C rval;
-     ist >> rval;
-     if (ist.fail()) {
-        failed = true;
-     return 0;
-     }
-     else
-     return rval;
-}
-
-
-bool FileReaderTemplate::inputFailed() const {
+/*bool FileReaderTemplate::inputFailed() const {
   return failed;
-}
+}*/

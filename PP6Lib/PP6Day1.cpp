@@ -11,6 +11,8 @@ void do_day1(){
      char op('\0');
      while(true){
         // Ask the user what they want to do
+        std::cout << "PP6Calculator - Day 1 Menu" << std::endl;
+        std::cout << "==========================" << std::endl;
         std::cout << "Enter the operation you would like to perform:" << std::endl;
         std::cout << "1) Intercept" << std::endl;
         std::cout << "2) Quadratic Solver" << std::endl;

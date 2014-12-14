@@ -26,5 +26,20 @@ class FileReaderTemplate {
   bool failed;
 };
 
+template <typename C>
+void FileReaderTemplate::getField(const int n, C* rval){
+     failed = false;
+     std::istringstream ist(line);
+     this->skip_fields(ist, n-1);
+//     C rval;
+     ist >> rval;
+     if (ist.fail()) {
+        failed = true;
+     return 0;
+     }
+     else
+     return rval;
+}
+
 
 #endif
